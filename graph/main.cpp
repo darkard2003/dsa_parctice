@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int main() {
+void dfsBfsTest() {
   Graph g;
   g.loadFromFile("graph.txt");
   cout << "Edges :: " << g.noEdge() << endl
@@ -11,4 +11,17 @@ int main() {
 
   g.dfs();
   g.bfs();
+}
+
+void mstTest() {
+  Graph g;
+  bool res = g.loadFromFile("wgraph.txt");
+  if (!res)
+    cout << "Falid to load file";
+  g.kruskalsMST();
+}
+
+int main() {
+  mstTest();
+  return 0;
 }

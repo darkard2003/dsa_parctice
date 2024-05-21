@@ -1,3 +1,4 @@
+#include "dsu.cpp"
 #include "queue.cpp"
 #include "stack.cpp"
 
@@ -5,6 +6,24 @@
 #include <iostream>
 
 using namespace std;
+
+class Edge {
+public:
+  int s;
+  int d;
+  int w;
+
+  Edge() {
+    s = 0;
+    d = 0;
+    w = 0;
+  }
+  Edge(int s, int d, int w) {
+    this->s = s;
+    this->d = d;
+    this->w = w;
+  }
+};
 
 class Graph {
   int **adMat;
@@ -36,7 +55,7 @@ public:
       adMat[i] = new int[v];
       for (int j = 0; j < v; j++) {
         f >> adMat[i][j];
-        if (adMat[i][j] == 1)
+        if (adMat[i][j])
           c++;
       }
     }
@@ -80,5 +99,55 @@ public:
           q.enqueue(i), visited[i] = true;
     }
     delete[] visited;
+  }
+
+  Edge *getEdgeList() {
+    Edge *edgeList = new Edge[e];
+    int c = 0;
+    for (int i = 0; i < v; i++)
+      for (int j = i; j < v; j++)
+        if (adMat[i][j]) {
+          edgeList[c++] = Edge(i, j, adMat[i][j]);
+        }
+    return edgeList;
+  }
+
+  void sortEdges(Edge *edges, int n) {
+    for (int i = n - 2; i > 0; i--) {
+      bool sorted = true;
+      for (int j = 0; j <= i; j++)
+        if (edges[j].w > edges[j + 1].w)
+          swap(edges[j], edges[j + 1]), sorted = false;
+      if (sorted)
+        break;
+    }
+  }
+
+  void kruskalsMST() {
+    Edge *edges = getEdgeList();
+    sortEdges(edges, e);
+
+    Edge *mst = new Edge[e];
+    int c = -1;
+
+    DSU dsu(e);
+
+    int w = 0;
+
+    for (int i = 0; i < e; i++) {
+      Edge e = edges[i];
+      if (dsu.join(e.s, e.d)) {
+        mst[++c] = e;
+        w += e.w;
+      }
+    }
+
+    for (int i = 0; i <= c; i++) {
+      Edge e = mst[i];
+      cout << e.s << "->" << e.d << " : " << e.w << endl;
+    }
+    cout << "Total Weight :: " << w;
+
+    delete[] edges;
   }
 };
