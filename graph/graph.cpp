@@ -113,9 +113,9 @@ public:
   }
 
   void sortEdges(Edge *edges, int n) {
-    for (int i = n - 2; i > 0; i--) {
+    for (int i = n - 1; i > 0; i--) {
       bool sorted = true;
-      for (int j = 0; j <= i; j++)
+      for (int j = 0; j < i; j++)
         if (edges[j].w > edges[j + 1].w)
           swap(edges[j], edges[j + 1]), sorted = false;
       if (sorted)
