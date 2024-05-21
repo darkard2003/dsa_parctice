@@ -146,8 +146,45 @@ public:
       Edge e = mst[i];
       cout << e.s << "->" << e.d << " : " << e.w << endl;
     }
-    cout << "Total Weight :: " << w;
+    cout << "Total Weight :: " << w << endl;
 
     delete[] edges;
+  }
+
+  int minKey(int *key, bool *mstSet) {
+    int minIdx = -1, minVal = INT_MAX;
+    for (int i = 0; i < v; i++)
+      if (!mstSet[i] && key[i] < minVal)
+        minVal = key[i], minIdx = i;
+    return minIdx;
+  };
+
+  void primsMST() {
+    int *key = new int[v];
+    int *parent = new int[v];
+
+    bool *mstSet = new bool[v]{false};
+
+    for (int i = 0; i < v; i++)
+      key[i] = INT_MAX, parent[i] = -1;
+
+    key[0] = 0;
+
+    for (int i = 0; i < v - 1; i++) {
+      int m = minKey(key, mstSet);
+      mstSet[m] = true;
+      for (int i = 0; i < v; i++) {
+        if (adMat[m][i] && !mstSet[i] && adMat[m][i] < key[i])
+          key[i] = adMat[m][i], parent[i] = m;
+      }
+    }
+
+    cout << "Edge\t" << "Weight\n";
+    int w = 0;
+    for (int i = 1; i < v; i++) {
+      cout << parent[i] << "->" << i << "\t" << key[i] << endl;
+      w += key[i];
+    }
+    cout << "Total weight :: " << w << endl;
   }
 };

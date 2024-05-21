@@ -19,6 +19,7 @@ void mstTest() {
   if (!res)
     cout << "Falid to load file";
   g.kruskalsMST();
+  g.primsMST();
 }
 
 int main() {
