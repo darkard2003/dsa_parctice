@@ -10,8 +10,8 @@ using namespace std;
 #define INF 999
 
 void printPath(int s, int d, int *parent) {
-  if (s == -1){
-    cout << d ;
+  if (s == -1) {
+    cout << d;
     return;
   }
   printPath(parent[s], d, parent);
@@ -320,5 +320,33 @@ public:
       }
       cout << endl;
     }
+  }
+
+  bool isSafe(int *colors, int c, int cv) {
+    for (int i = 0; i < v; i++)
+      if (adMat[cv][i] && colors[i] == c)
+        return false;
+    return true;
+  }
+
+  void mcolor(int *colors, int m, int cv) {
+    if (cv == v) {
+      for (int i = 0; i < v; i++)
+        cout << colors[i] << " ";
+      cout << endl;
+      return;
+    }
+    for (int i = 1; i <= m; i++) {
+      if (isSafe(colors, i, cv)) {
+        colors[cv] = i;
+        mcolor(colors, m, cv + 1);
+        colors[cv] = 0;
+      }
+    }
+  }
+
+  void mcolor(int m) {
+    int *colors = new int[v]{0};
+    mcolor(colors, m, 0);
   }
 };

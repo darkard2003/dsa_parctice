@@ -22,6 +22,12 @@ void mstTest() {
   g.primsMST();
 }
 
+void colorTest() {
+  Graph g;
+  g.loadFromFile("graph.txt");
+  g.mcolor(3);
+}
+
 void pathTest() {
   Graph g;
   g.loadFromFile("wdag.txt", true);
@@ -29,6 +35,6 @@ void pathTest() {
 }
 
 int main() {
-  pathTest();
+  colorTest();
   return 0;
 }
