@@ -22,7 +22,14 @@ void mstTest() {
   g.primsMST();
 }
 
+void pathTest() {
+  Graph g;
+  g.loadFromFile("ford2.txt", true);
+  // g.djkastra();
+  g.bellmanFroyd();
+}
+
 int main() {
-  mstTest();
+  pathTest();
   return 0;
 }

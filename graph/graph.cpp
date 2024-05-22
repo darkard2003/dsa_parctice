@@ -7,6 +7,17 @@
 
 using namespace std;
 
+void printPath(int s, int d, int *parent) {
+  if (s == -1)
+    return;
+  if (s == d) {
+    cout << s;
+    return;
+  }
+  printPath(parent[s], d, parent);
+  cout << " -> " << s;
+}
+
 class Edge {
 public:
   int s;
@@ -28,12 +39,14 @@ public:
 class Graph {
   int **adMat;
   int v, e;
+  bool isDirected;
 
 public:
   Graph() {
     adMat = NULL;
     v = 0;
     e = 0;
+    isDirected = false;
   }
 
   ~Graph() {
@@ -42,7 +55,8 @@ public:
     delete[] adMat;
   }
 
-  bool loadFromFile(string filename) {
+  bool loadFromFile(string filename, bool isDirected = false) {
+    this->isDirected = isDirected;
     fstream f;
     f.open(filename);
     if (!f.is_open()) {
@@ -59,7 +73,7 @@ public:
           c++;
       }
     }
-    e = c / 2;
+    e = isDirected ? c : c / 2;
     return true;
   }
 
@@ -88,9 +102,12 @@ public:
 
   void bfs() {
     bool *visited = new bool[v]{false};
+
     Queue q(v);
     q.enqueue(0);
+
     visited[0] = true;
+
     while (!q.isEmpty()) {
       int c = q.dequeue();
       cout << c << " ";
@@ -105,7 +122,7 @@ public:
     Edge *edgeList = new Edge[e];
     int c = 0;
     for (int i = 0; i < v; i++)
-      for (int j = i; j < v; j++)
+      for (int j = isDirected ? 0 : i; j < v; j++)
         if (adMat[i][j]) {
           edgeList[c++] = Edge(i, j, adMat[i][j]);
         }
@@ -186,5 +203,74 @@ public:
       w += key[i];
     }
     cout << "Total weight :: " << w << endl;
+
+    delete[] key;
+    delete[] parent;
+    delete[] mstSet;
+  }
+
+  void djkastra() {
+    int *key = new int[v];
+    int *parent = new int[v];
+    bool *visited = new bool[v]{false};
+    for (int i = 0; i < v; i++)
+      key[i] = INT_MAX, parent[i] = -1;
+    key[0] = 0;
+    for (int i = 0; i < v - 1; i++) {
+      int m = minKey(key, visited);
+      visited[m] = true;
+      for (int j = 0; j < v; j++) {
+        if (adMat[m][j] && !visited[j] && key[m] + adMat[m][j] < key[j])
+          key[j] = key[m] + adMat[m][j], parent[j] = m;
+      }
+    }
+
+    for (int i = 0; i < v; i++) {
+      printPath(i, 0, parent);
+      cout << " : " << key[i] << endl;
+    }
+    delete[] key;
+    delete[] parent;
+    delete[] visited;
+  }
+
+  void bellmanFroyd() {
+    Edge *edges = getEdgeList();
+    int *dist = new int[v];
+    int *parent = new int[v];
+
+    for (int i = 0; i < e; i++)
+      cout << edges[i].s << "-->" << edges[i].d << " : " << edges[i].w << endl;
+
+    for (int i = 0; i < v; i++)
+      dist[i] = INT_MAX, parent[i] = -1;
+
+    dist[0] = 0;
+
+    for (int i = 0; i < v - 1; i++) {
+      for (int j = 0; j < e; j++) {
+        Edge e = edges[j];
+        if (dist[e.s] != INT_MAX && dist[e.s] + e.w < dist[e.d])
+          dist[e.d] = dist[e.s] + e.w, parent[e.d] = e.s;
+      }
+    }
+
+    for (int j = 0; j < e; j++) {
+      Edge e = edges[j];
+      if (adMat[e.s][e.d] && dist[e.d] > dist[e.s] + adMat[e.s][e.d]) {
+        cout << "Negetive Weight Cycle detected " << e.s << " --> " << e.d
+             << endl;
+        return;
+      }
+    }
+
+    for (int i = 0; i < v; i++) {
+      printPath(i, 0, parent);
+      cout << " : " << dist[i] << endl;
+    }
+
+    delete[] edges;
+    delete[] dist;
+    delete[] parent;
   }
 };
