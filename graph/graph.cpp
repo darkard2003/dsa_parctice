@@ -7,11 +7,11 @@
 
 using namespace std;
 
+#define INF 999
+
 void printPath(int s, int d, int *parent) {
-  if (s == -1)
-    return;
-  if (s == d) {
-    cout << s;
+  if (s == -1){
+    cout << d ;
     return;
   }
   printPath(parent[s], d, parent);
@@ -69,7 +69,7 @@ public:
       adMat[i] = new int[v];
       for (int j = 0; j < v; j++) {
         f >> adMat[i][j];
-        if (adMat[i][j])
+        if (adMat[i][j] && adMat[i][j] != INF)
           c++;
       }
     }
@@ -272,5 +272,53 @@ public:
     delete[] edges;
     delete[] dist;
     delete[] parent;
+  }
+
+  void froydWarshall() {
+    int **dist = new int *[v];
+    int **parent = new int *[v];
+
+    for (int i = 0; i < v; i++) {
+      dist[i] = new int[v];
+      parent[i] = new int[v];
+      for (int j = 0; j < v; j++)
+        dist[i][j] = adMat[i][j], parent[i][j] = -1;
+    }
+
+    cout << "Initial Matrix :: " << endl;
+    for (int i = 0; i < v; i++) {
+      for (int j = 0; j < v; j++)
+        cout << dist[i][j] << " ";
+      cout << endl;
+    }
+
+    cout << endl;
+
+    for (int i = 0; i < v; i++) {
+      for (int j = 0; j < v; j++) {
+        for (int k = 0; k < v; k++) {
+          if (dist[i][k] != INF && dist[k][j] != INF &&
+              dist[i][j] > dist[i][k] + dist[k][j])
+            dist[i][j] = dist[i][k] + dist[k][j], parent[i][j] = k;
+        }
+      }
+    }
+
+    cout << "Final Matrix :: " << endl;
+    for (int i = 0; i < v; i++) {
+      for (int j = 0; j < v; j++)
+        cout << dist[i][j] << " ";
+      cout << endl;
+    }
+
+    for (int i = 0; i < v; i++) {
+      for (int j = 0; j < v; j++) {
+        if (dist[i][j] != INF) {
+          printPath(j, i, parent[i]);
+          cout << " : " << dist[i][j] << endl;
+        }
+      }
+      cout << endl;
+    }
   }
 };

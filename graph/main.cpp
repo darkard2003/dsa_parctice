@@ -24,9 +24,8 @@ void mstTest() {
 
 void pathTest() {
   Graph g;
-  g.loadFromFile("ford2.txt", true);
-  // g.djkastra();
-  g.bellmanFroyd();
+  g.loadFromFile("wdag.txt", true);
+  g.froydWarshall();
 }
 
 int main() {
