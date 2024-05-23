@@ -51,7 +51,8 @@ int main() {
   cout << "Enter the size of board :: ";
   cin >> n;
 
-  int **board = new int *[n];
+  int **board;
+  board = new int *[n];
   for (int i = 0; i < n; i++) {
     board[i] = new int[n]{0};
   }

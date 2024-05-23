@@ -2,40 +2,68 @@
 
 using namespace std;
 
-int dp[100][100];
+int mt[100][100];
+int kt[100][100];
 
-int matChanMemoised(int *p, int i, int j) {
+void printPairs(int i, int j) {
+  if (i == j) {
+    cout << "A" << i;
+    return;
+  }
+  cout << "(";
+  printPairs(i, kt[i][j]);
+  printPairs(kt[i][j] + 1, j);
+  cout << ")";
+}
+
+int getMatChan(int *p, int n, int i, int j) {
   if (i == j)
     return 0;
 
-  if (dp[i][j] != -1)
-    return dp[i][j];
+  if (mt[i][j] != -1)
+    return mt[i][j];
 
-  dp[i][j] = INT_MAX;
+  mt[i][j] = INT_MAX;
+
   for (int k = i; k < j; k++) {
-    dp[i][j] =
-        min(dp[i][j], matChanMemoised(p, i, k) + matChanMemoised(p, k + 1, j) +
-                          p[i - 1] * p[k] * p[j]);
+    int val = getMatChan(p, n, i, k) + getMatChan(p, n, k + 1, j) +
+              p[i - 1] * p[k] * p[j];
+    if (val < mt[i][j])
+      mt[i][j] = val, kt[i][j] = k;
   }
-
-  return dp[i][j];
+  return mt[i][j];
 }
 
-int matChanMemoised(int *p, int n) { return matChanMemoised(p, 0, n - 1); }
-
-void printMat(int n) {
+void printMat(int mat[100][100], int n) {
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++)
-      cout << dp[i][j] << " ";
+      cout << mat[i][j] << " ";
     cout << endl;
   }
+  cout << endl;
 }
 
 int main() {
-  int arr[] = {1, 3, 4, 5};
-  int n = sizeof(arr) / sizeof(arr[0]);
-  memset(dp, -1, sizeof dp);
-  cout << "Multiplicaiton required " << matChanMemoised(arr, n) << endl;
-  printMat(n);
-  cout << endl;
+  memset(mt, -1, sizeof mt);
+  memset(kt, 0, sizeof kt);
+
+  int n;
+  cout << "Enter the number of matricies :: ";
+  cin >> n;
+  int *p = new int[++n];
+  cout << "Enter " << n << " number of values:: ";
+  for (int i = 0; i < n; i++)
+    cin >> p[i];
+
+  int m = getMatChan(p, n, 1, n-1);
+
+  cout << "Mtable :: " << endl;
+  printMat(mt, n);
+
+  cout << "Ktable :: " << endl;
+  printMat(kt, n);
+
+  cout << "Mul required :: " << m << endl;
+  printPairs(1, n-1);
+  return 0;
 }

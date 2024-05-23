@@ -38,36 +38,37 @@ public:
 
 class Graph {
   int **adMat;
-  int v, e;
+  int V, e;
   bool isDirected;
 
 public:
   Graph() {
     adMat = NULL;
-    v = 0;
+    V = 0;
     e = 0;
     isDirected = false;
   }
 
   ~Graph() {
-    for (int i = 0; i < v; i++)
+    for (int i = 0; i < V; i++)
       delete[] adMat[i];
     delete[] adMat;
   }
 
   bool loadFromFile(string filename, bool isDirected = false) {
     this->isDirected = isDirected;
+
     fstream f;
     f.open(filename);
     if (!f.is_open()) {
       return false;
     }
-    f >> v;
-    adMat = new int *[v];
+    f >> V;
+    adMat = new int *[V];
     int c = 0;
-    for (int i = 0; i < v; i++) {
-      adMat[i] = new int[v];
-      for (int j = 0; j < v; j++) {
+    for (int i = 0; i < V; i++) {
+      adMat[i] = new int[V];
+      for (int j = 0; j < V; j++) {
         f >> adMat[i][j];
         if (adMat[i][j] && adMat[i][j] != INF)
           c++;
@@ -77,12 +78,12 @@ public:
     return true;
   }
 
-  int noVertex() { return v; }
+  int noVertex() { return V; }
   int noEdge() { return e; }
 
   void dfs() {
-    bool *visited = new bool[v]{false};
-    Stack s(v);
+    bool *visited = new bool[V]{false};
+    Stack s(V);
 
     s.push(0);
     visited[0] = true;
@@ -91,7 +92,7 @@ public:
       int c = s.pop();
       cout << c << " ";
 
-      for (int i = 0; i < v; i++) {
+      for (int i = 0; i < V; i++) {
         if (adMat[c][i] && !visited[i])
           s.push(i), visited[i] = true;
       }
@@ -101,9 +102,9 @@ public:
   }
 
   void bfs() {
-    bool *visited = new bool[v]{false};
+    bool *visited = new bool[V]{false};
 
-    Queue q(v);
+    Queue q(V);
     q.enqueue(0);
 
     visited[0] = true;
@@ -111,7 +112,7 @@ public:
     while (!q.isEmpty()) {
       int c = q.dequeue();
       cout << c << " ";
-      for (int i = 0; i < v; i++)
+      for (int i = 0; i < V; i++)
         if (adMat[c][i] && !visited[i])
           q.enqueue(i), visited[i] = true;
     }
@@ -121,8 +122,8 @@ public:
   Edge *getEdgeList() {
     Edge *edgeList = new Edge[e];
     int c = 0;
-    for (int i = 0; i < v; i++)
-      for (int j = isDirected ? 0 : i; j < v; j++)
+    for (int i = 0; i < V; i++)
+      for (int j = isDirected ? 0 : i; j < V; j++)
         if (adMat[i][j]) {
           edgeList[c++] = Edge(i, j, adMat[i][j]);
         }
@@ -170,35 +171,35 @@ public:
 
   int minKey(int *key, bool *mstSet) {
     int minIdx = -1, minVal = INT_MAX;
-    for (int i = 0; i < v; i++)
+    for (int i = 0; i < V; i++)
       if (!mstSet[i] && key[i] < minVal)
         minVal = key[i], minIdx = i;
     return minIdx;
   };
 
   void primsMST() {
-    int *key = new int[v];
-    int *parent = new int[v];
+    int *key = new int[V];
+    int *parent = new int[V];
 
-    bool *mstSet = new bool[v]{false};
+    bool *mstSet = new bool[V]{false};
 
-    for (int i = 0; i < v; i++)
+    for (int i = 0; i < V; i++)
       key[i] = INT_MAX, parent[i] = -1;
 
     key[0] = 0;
 
-    for (int i = 0; i < v - 1; i++) {
+    for (int i = 0; i < V - 1; i++) {
       int m = minKey(key, mstSet);
       mstSet[m] = true;
-      for (int i = 0; i < v; i++) {
-        if (adMat[m][i] && !mstSet[i] && adMat[m][i] < key[i])
-          key[i] = adMat[m][i], parent[i] = m;
+      for (int v = 0; v < V; v++) {
+        if (adMat[m][v] && !mstSet[v] && adMat[m][v] < key[v])
+          key[v] = adMat[m][v], parent[v] = m;
       }
     }
 
     cout << "Edge\t" << "Weight\n";
     int w = 0;
-    for (int i = 1; i < v; i++) {
+    for (int i = 1; i < V; i++) {
       cout << parent[i] << "->" << i << "\t" << key[i] << endl;
       w += key[i];
     }
@@ -210,22 +211,22 @@ public:
   }
 
   void djkastra() {
-    int *key = new int[v];
-    int *parent = new int[v];
-    bool *visited = new bool[v]{false};
-    for (int i = 0; i < v; i++)
+    int *key = new int[V];
+    int *parent = new int[V];
+    bool *visited = new bool[V]{false};
+    for (int i = 0; i < V; i++)
       key[i] = INT_MAX, parent[i] = -1;
     key[0] = 0;
-    for (int i = 0; i < v - 1; i++) {
+    for (int i = 0; i < V - 1; i++) {
       int m = minKey(key, visited);
       visited[m] = true;
-      for (int j = 0; j < v; j++) {
+      for (int j = 0; j < V; j++) {
         if (adMat[m][j] && !visited[j] && key[m] + adMat[m][j] < key[j])
           key[j] = key[m] + adMat[m][j], parent[j] = m;
       }
     }
 
-    for (int i = 0; i < v; i++) {
+    for (int i = 0; i < V; i++) {
       printPath(i, 0, parent);
       cout << " : " << key[i] << endl;
     }
@@ -236,18 +237,18 @@ public:
 
   void bellmanFroyd() {
     Edge *edges = getEdgeList();
-    int *dist = new int[v];
-    int *parent = new int[v];
+    int *dist = new int[V];
+    int *parent = new int[V];
 
     for (int i = 0; i < e; i++)
       cout << edges[i].s << "-->" << edges[i].d << " : " << edges[i].w << endl;
 
-    for (int i = 0; i < v; i++)
+    for (int i = 0; i < V; i++)
       dist[i] = INT_MAX, parent[i] = -1;
 
     dist[0] = 0;
 
-    for (int i = 0; i < v - 1; i++) {
+    for (int i = 0; i < V - 1; i++) {
       for (int j = 0; j < e; j++) {
         Edge e = edges[j];
         if (dist[e.s] != INT_MAX && dist[e.s] + e.w < dist[e.d])
@@ -264,7 +265,7 @@ public:
       }
     }
 
-    for (int i = 0; i < v; i++) {
+    for (int i = 0; i < V; i++) {
       printPath(i, 0, parent);
       cout << " : " << dist[i] << endl;
     }
@@ -275,28 +276,28 @@ public:
   }
 
   void froydWarshall() {
-    int **dist = new int *[v];
-    int **parent = new int *[v];
+    int **dist = new int *[V];
+    int **parent = new int *[V];
 
-    for (int i = 0; i < v; i++) {
-      dist[i] = new int[v];
-      parent[i] = new int[v];
-      for (int j = 0; j < v; j++)
+    for (int i = 0; i < V; i++) {
+      dist[i] = new int[V];
+      parent[i] = new int[V];
+      for (int j = 0; j < V; j++)
         dist[i][j] = adMat[i][j], parent[i][j] = -1;
     }
 
     cout << "Initial Matrix :: " << endl;
-    for (int i = 0; i < v; i++) {
-      for (int j = 0; j < v; j++)
+    for (int i = 0; i < V; i++) {
+      for (int j = 0; j < V; j++)
         cout << dist[i][j] << " ";
       cout << endl;
     }
 
     cout << endl;
 
-    for (int i = 0; i < v; i++) {
-      for (int j = 0; j < v; j++) {
-        for (int k = 0; k < v; k++) {
+    for (int i = 0; i < V; i++) {
+      for (int j = 0; j < V; j++) {
+        for (int k = 0; k < V; k++) {
           if (dist[i][k] != INF && dist[k][j] != INF &&
               dist[i][j] > dist[i][k] + dist[k][j])
             dist[i][j] = dist[i][k] + dist[k][j], parent[i][j] = k;
@@ -305,14 +306,14 @@ public:
     }
 
     cout << "Final Matrix :: " << endl;
-    for (int i = 0; i < v; i++) {
-      for (int j = 0; j < v; j++)
+    for (int i = 0; i < V; i++) {
+      for (int j = 0; j < V; j++)
         cout << dist[i][j] << " ";
       cout << endl;
     }
 
-    for (int i = 0; i < v; i++) {
-      for (int j = 0; j < v; j++) {
+    for (int i = 0; i < V; i++) {
+      for (int j = 0; j < V; j++) {
         if (dist[i][j] != INF) {
           printPath(j, i, parent[i]);
           cout << " : " << dist[i][j] << endl;
@@ -323,15 +324,15 @@ public:
   }
 
   bool isSafe(int *colors, int c, int cv) {
-    for (int i = 0; i < v; i++)
+    for (int i = 0; i < V; i++)
       if (adMat[cv][i] && colors[i] == c)
         return false;
     return true;
   }
 
   void mcolor(int *colors, int m, int cv) {
-    if (cv == v) {
-      for (int i = 0; i < v; i++)
+    if (cv == V) {
+      for (int i = 0; i < V; i++)
         cout << colors[i] << " ";
       cout << endl;
       return;
@@ -346,7 +347,7 @@ public:
   }
 
   void mcolor(int m) {
-    int *colors = new int[v]{0};
+    int *colors = new int[V]{0};
     mcolor(colors, m, 0);
   }
 };
